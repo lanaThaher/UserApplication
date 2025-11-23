@@ -128,3 +128,4 @@ F:\c#\EFCoreApp\UserApplication\UserApplication\obj\Debug\net8.0\refint\UserAppl
 F:\c#\EFCoreApp\UserApplication\UserApplication\obj\Debug\net8.0\UserApplication.pdb
 F:\c#\EFCoreApp\UserApplication\UserApplication\obj\Debug\net8.0\UserApplication.genruntimeconfig.cache
 F:\c#\EFCoreApp\UserApplication\UserApplication\obj\Debug\net8.0\ref\UserApplication.dll
+F:\c#\EFCoreApp\UserApplication\UserApplication\obj\Debug\net8.0\UserApplication.sourcelink.json

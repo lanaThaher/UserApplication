@@ -4,22 +4,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UserApplication.Models;
+using UserApplication.Repository;
 
 
 namespace UserApplication
 {
     public class ProductService
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IProductRepository _productRepository;
 
         public ProductService()
         {
-            _context = new ApplicationDbContext();
+            var context = new ApplicationDbContext();
+            _productRepository = new ProductRepository(context);
         }
 
         public void AddProduct()
         {
-            using var _context = new ApplicationDbContext();
 
             Console.Write("Enter name: ");
             var name = Console.ReadLine();
@@ -27,7 +28,7 @@ namespace UserApplication
             Console.Write("Enter price: ");
             var priceInput = Console.ReadLine();
 
-            if (name == "" || priceInput == "")
+            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(priceInput))
             {
                 Console.WriteLine("\nError: Name and price are required!\n");
                 return;
@@ -39,17 +40,14 @@ namespace UserApplication
                 return;
             }
 
-
-            bool IsNameExist = _context.Products.Any(n => n.Name == name);
-            if (IsNameExist)
+            if (_productRepository.IsNameExist(name))
             {
                 Console.WriteLine("\nError: a product with this name already exists\n");
             }
             else
             {
                 var product = new Product { Name = name, Price = price };
-                _context.Products.Add(product);
-                _context.SaveChanges();
+                _productRepository.Add(product);
 
                 Console.WriteLine("\nProduct added successfully\n");
             }
@@ -57,17 +55,17 @@ namespace UserApplication
 
         public void UpdateProduct()
         {
-            using var _context = new ApplicationDbContext();
 
             Console.WriteLine("\nEnter the ID of the product to update it \n");
-            string idInput = Console.ReadLine();
+            string? idInput = Console.ReadLine();
             if (string.IsNullOrWhiteSpace(idInput) || !int.TryParse(idInput, out int id))
             {
                 Console.WriteLine("Error: Invalid ID!\n");
                 return;
             }
 
-            var product = _context.Products.FirstOrDefault(p => p.Id == id);
+            var product = _productRepository.GetById(id);
+
             if (product == null)
             {
                 Console.WriteLine("Product not found!\n");
@@ -78,10 +76,10 @@ namespace UserApplication
             Console.WriteLine($"The price of the product is {product.Price}");
 
             Console.Write("Enter new name (leave empty to keep current): ");
-            string newName = Console.ReadLine();
-            if (newName != "")
+            string? newName = Console.ReadLine();
+            if (!string.IsNullOrEmpty(newName) )
             {
-                bool nameExists = _context.Products.Any(p => p.Name == newName && p.Id != id);
+                bool nameExists = _productRepository.IsNameAndIdExist(newName, id);
                 if (nameExists)
                 {
                     Console.WriteLine("Error: a product with this name already exists!\n");
@@ -91,8 +89,8 @@ namespace UserApplication
             }
 
             Console.Write("Enter new price (leave empty to keep current): ");
-            string newPriceInput = Console.ReadLine();
-            if (newPriceInput != "")
+            string? newPriceInput = Console.ReadLine();
+            if (!string.IsNullOrEmpty(newPriceInput))
             {
                 if (!double.TryParse(newPriceInput, out double newPrice))
                 {
@@ -103,18 +101,17 @@ namespace UserApplication
             }
 
 
-            _context.SaveChanges();
+            _productRepository.Update(product);
             Console.WriteLine("Product updated successfully\n");
         }
 
         public void getProductDetails()
         {
-            using var _context = new ApplicationDbContext();
 
             Console.WriteLine("Enter the ID of the product to View the details ");
             int id = Convert.ToInt32(Console.ReadLine());
 
-            var product = _context.Products.FirstOrDefault(p => p.Id == id);
+            var product = _productRepository.GetById(id);
 
             if (product == null)
             {
@@ -132,9 +129,8 @@ namespace UserApplication
 
         public void listAllProduct()
         {
-            using var _context = new ApplicationDbContext();
 
-            var productList = _context.Products.ToList();
+            var productList = _productRepository.GetAll();
 
             if (!productList.Any())
             {
@@ -153,14 +149,13 @@ namespace UserApplication
         }
 
 
-        public void deleteProduct()
+        public void DeleteProduct()
         {
-            using var _context = new ApplicationDbContext();
 
             Console.Write("Enter product ID to delete: ");
-            string idInput = Console.ReadLine();
+            string? idInput = Console.ReadLine();
 
-            if (idInput == "")
+            if (string.IsNullOrEmpty(idInput))
             {
                 Console.WriteLine("\nError: ID is required!\n");
                 return;
@@ -172,7 +167,7 @@ namespace UserApplication
                 return;
             }
 
-            var product = _context.Products.FirstOrDefault(p => p.Id == id);
+            var product = _productRepository.GetById(id);
             if (product == null)
             {
                 Console.WriteLine("\nProduct not found!\n");
@@ -181,12 +176,11 @@ namespace UserApplication
 
             Console.WriteLine($"Product: {product.Name} - ${product.Price}\n");
             Console.Write("\nAre you sure you want to delete this product? (y/n): ");
-            string confirm = Console.ReadLine().ToLower();
+            string? confirm = Console.ReadLine()!.ToLower();
 
             if (confirm == "y")
             {
-                _context.Products.Remove(product);
-                _context.SaveChanges();
+                _productRepository.Delete(product);
                 Console.WriteLine("\n Product deleted successfully!\n");
             }
             else

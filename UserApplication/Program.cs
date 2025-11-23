@@ -21,16 +21,27 @@ namespace UserApplication
                 Console.WriteLine("6 Exit");
                 Console.Write("Choose an option: ");
 
-                var choice = Console.ReadLine();
+                var input = int.TryParse(Console.ReadLine(), out int choiceInt) ;
+                var choice = (ProductOpertation) choiceInt;
 
                 switch (choice)
                 {
-                    case "1": service.AddProduct(); break;
-                    case "2": service.UpdateProduct(); break;
-                    case "3": service.getProductDetails(); break;
-                    case "4": service.listAllProduct(); break;
-                    case "5": service.deleteProduct(); break;
-                    case "6": return;
+                    case ProductOpertation.AddProduct: 
+                        service.AddProduct();
+                        break;
+                    case ProductOpertation.UpdateProduct:
+                        service.UpdateProduct();
+                        break;
+                    case ProductOpertation.GetProductDetailes:
+                        service.getProductDetails();
+                        break;
+                    case ProductOpertation.GetAllProducts: 
+                        service.listAllProduct();
+                        break;
+                    case ProductOpertation.DeleteProduct
+                    : service.DeleteProduct(); 
+                        break;
+                    case ProductOpertation.Exit: return;
 
                     default:
                         break;
