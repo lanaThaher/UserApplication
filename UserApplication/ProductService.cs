@@ -19,174 +19,93 @@ namespace UserApplication
             _productRepository = new ProductRepository(context);
         }
 
-        public void AddProduct()
+        public string AddProduct(string name , string price)
         {
 
-            Console.Write("Enter name: ");
-            var name = Console.ReadLine();
-
-            Console.Write("Enter price: ");
-            var priceInput = Console.ReadLine();
-
-            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(priceInput))
+            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(price))
             {
-                Console.WriteLine("\nError: Name and price are required!\n");
-                return;
+                return "\nError: Name and price are required!\n";
             }
 
-            if (!double.TryParse(priceInput, out double price))
+            if (!double.TryParse(price, out double priceDouble))
             {
-                Console.WriteLine("\nError: Price must be a valid number!\n");
-                return;
+                return "\nError: Price must be a valid number!\n";
+                
             }
 
             if (_productRepository.IsNameExist(name))
             {
-                Console.WriteLine("\nError: a product with this name already exists\n");
+                return "\nError: a product with this name already exists\n";
             }
             else
             {
-                var product = new Product { Name = name, Price = price };
+                var product = new Product { Name = name, Price = priceDouble };
                 _productRepository.Add(product);
 
-                Console.WriteLine("\nProduct added successfully\n");
+                return "\nProduct added successfully\n";
             }
         }
 
-        public void UpdateProduct()
+        public string UpdateProduct(int id, string newName, string newPrice)
         {
-
-            Console.WriteLine("\nEnter the ID of the product to update it \n");
-            string? idInput = Console.ReadLine();
-            if (string.IsNullOrWhiteSpace(idInput) || !int.TryParse(idInput, out int id))
-            {
-                Console.WriteLine("Error: Invalid ID!\n");
-                return;
-            }
-
             var product = _productRepository.GetById(id);
 
-            if (product == null)
-            {
-                Console.WriteLine("Product not found!\n");
-                return;
-            }
-
-            Console.WriteLine($"The Name of the product is {product.Name}");
-            Console.WriteLine($"The price of the product is {product.Price}");
-
-            Console.Write("Enter new name (leave empty to keep current): ");
-            string? newName = Console.ReadLine();
-            if (!string.IsNullOrEmpty(newName) )
+            if (!string.IsNullOrEmpty(newName))
             {
                 bool nameExists = _productRepository.IsNameAndIdExist(newName, id);
                 if (nameExists)
-                {
-                    Console.WriteLine("Error: a product with this name already exists!\n");
-                    return;
-                }
-                product.Name = newName;
+             
+                    return "Error: a product with this name already exists!\n";
+
+                
+                product!.Name = newName;
             }
 
-            Console.Write("Enter new price (leave empty to keep current): ");
-            string? newPriceInput = Console.ReadLine();
-            if (!string.IsNullOrEmpty(newPriceInput))
+            if (!string.IsNullOrEmpty(newPrice))
             {
-                if (!double.TryParse(newPriceInput, out double newPrice))
-                {
-                    Console.WriteLine("Error: Price must be a valid number!\n");
-                    return;
-                }
-                product.Price = newPrice;
+                if (!double.TryParse(newPrice, out double Price))
+                
+                    return "Error: Price must be a valid number!\n";
+
+                    product!.Price = Price;
+                
+
             }
 
-
-            _productRepository.Update(product);
-            Console.WriteLine("Product updated successfully\n");
+            _productRepository.Update(product!);
+            return "Product updated successfully\n";
         }
 
-        public void getProductDetails()
+        public Product? getProductDetails(int id )
         {
 
-            Console.WriteLine("Enter the ID of the product to View the details ");
-            int id = Convert.ToInt32(Console.ReadLine());
+            return _productRepository.GetById(id);
 
-            var product = _productRepository.GetById(id);
-
-            if (product == null)
-            {
-
-                Console.WriteLine("Product not found!\n");
-                return;
-            }
-
-            else
-            {
-                Console.WriteLine($"The Name of the product is {product.Name}");
-                Console.WriteLine($"The price of the product is {product.Price}");
-            }
         }
 
-        public void listAllProduct()
+        public IEnumerable<Product> listAllProduct()
         {
 
             var productList = _productRepository.GetAll();
+            return productList;
 
-            if (!productList.Any())
-            {
-                Console.WriteLine("No products found");
 
-            }
-
-            else
-            {
-                Console.WriteLine("ID\tName\tPrice");
-                foreach (var p in productList)
-                {
-                    Console.WriteLine($"{p.Id}\t{p.Name}\t{p.Price}");
-                }
-            }
+           
         }
 
 
-        public void DeleteProduct()
+        public string DeleteProduct(int id )
         {
-
-            Console.Write("Enter product ID to delete: ");
-            string? idInput = Console.ReadLine();
-
-            if (string.IsNullOrEmpty(idInput))
-            {
-                Console.WriteLine("\nError: ID is required!\n");
-                return;
-            }
-
-            if (!int.TryParse(idInput, out int id))
-            {
-                Console.WriteLine("\nError: Invalid ID!\n");
-                return;
-            }
 
             var product = _productRepository.GetById(id);
             if (product == null)
             {
-                Console.WriteLine("\nProduct not found!\n");
-                return;
+                return "\nProduct not found!\n";
+                
             }
+            _productRepository.Delete(product);
+             return "\n Product deleted successfully!\n";
 
-            Console.WriteLine($"Product: {product.Name} - ${product.Price}\n");
-            Console.Write("\nAre you sure you want to delete this product? (y/n): ");
-            string? confirm = Console.ReadLine()!.ToLower();
-
-            if (confirm == "y")
-            {
-                _productRepository.Delete(product);
-                Console.WriteLine("\n Product deleted successfully!\n");
-            }
-            else
-            {
-                Console.WriteLine("\nOperation cancelled.\n");
-            }
         }
 
     }

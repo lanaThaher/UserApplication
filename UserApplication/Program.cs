@@ -8,18 +8,12 @@ namespace UserApplication
         static void Main(string[] args)
         {
             var service = new ProductService();
+            var ui = new ProductUI(service);
 
             while (true)
             {
 
-                Console.WriteLine("\nProduct Menu : \n");
-                Console.WriteLine("1 Add Product");
-                Console.WriteLine("2 Update Product");
-                Console.WriteLine("3 Get Product Details");
-                Console.WriteLine("4 List All  Products");
-                Console.WriteLine("5 Delete Product");
-                Console.WriteLine("6 Exit");
-                Console.Write("Choose an option: ");
+                ui.PrintMenu();
 
                 var input = int.TryParse(Console.ReadLine(), out int choiceInt) ;
                 var choice = (ProductOpertation) choiceInt;
@@ -27,19 +21,19 @@ namespace UserApplication
                 switch (choice)
                 {
                     case ProductOpertation.AddProduct: 
-                        service.AddProduct();
+                        ui.AddProductUI();
                         break;
                     case ProductOpertation.UpdateProduct:
-                        service.UpdateProduct();
+                        ui.UpdateProductUI();
                         break;
                     case ProductOpertation.GetProductDetailes:
-                        service.getProductDetails();
+                        ui.GetProductUI();
                         break;
                     case ProductOpertation.GetAllProducts: 
-                        service.listAllProduct();
+                        ui.ListAllProductUI();
                         break;
                     case ProductOpertation.DeleteProduct
-                    : service.DeleteProduct(); 
+                    : ui.DeleteProductUI(); 
                         break;
                     case ProductOpertation.Exit: return;
 
